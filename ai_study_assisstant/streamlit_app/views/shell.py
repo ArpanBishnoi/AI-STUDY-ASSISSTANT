@@ -1,7 +1,6 @@
 import streamlit as st
 
 from session import logout
-from views.library import render_library_page
 
 
 def render_sidebar(current_page: str):
@@ -11,8 +10,22 @@ def render_sidebar(current_page: str):
 
         st.divider()
         st.subheader("Navigation")
-        st.markdown(f"**{'→ ' if current_page == 'library' else ''}My Library**")
-        st.caption("Next: Summarize PDF")
+        if st.button(
+            "My Library",
+            key="nav_library",
+            use_container_width=True,
+            type="primary" if current_page == "library" else "secondary",
+        ):
+            st.query_params.page = "library"
+            st.rerun()
+        if st.button(
+            "Summarize PDF",
+            key="nav_summary",
+            use_container_width=True,
+            type="primary" if current_page == "summary" else "secondary",
+        ):
+            st.query_params.page = "summary"
+            st.rerun()
 
         st.divider()
         st.subheader("Active PDF")

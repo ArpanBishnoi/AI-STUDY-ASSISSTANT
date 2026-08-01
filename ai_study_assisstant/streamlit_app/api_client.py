@@ -106,3 +106,13 @@ def rename_pdf(pdf_id: int, new_title: str, headers: dict) -> dict:
 
 def is_connection_error(exc: Exception) -> bool:
     return isinstance(exc, RequestsConnectionError)
+
+
+def summarize_pdf(pdf_id: int, headers: dict) -> dict:
+    response = requests.put(
+        f"{API_BASE_URL}/SUMMARIZE_PDF",
+        headers=headers,
+        params={"pdf_id": pdf_id},
+        timeout=120,
+    )
+    return _handle_response(response)
