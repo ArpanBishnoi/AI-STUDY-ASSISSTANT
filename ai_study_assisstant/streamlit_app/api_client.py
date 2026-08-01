@@ -116,3 +116,24 @@ def summarize_pdf(pdf_id: int, headers: dict) -> dict:
         timeout=120,
     )
     return _handle_response(response)
+
+
+def ask_question(pdf_id: int, question: str, headers: dict) -> dict:
+    response = requests.post(
+        f"{API_BASE_URL}/ASK",
+        headers=headers,
+        json={"pdf_id": pdf_id, "question": question},
+        timeout=120,
+    )
+    return _handle_response(response)
+
+
+def get_chat_history(pdf_id: int, headers: dict) -> list:
+    response = requests.get(
+        f"{API_BASE_URL}/Chat history",
+        headers=headers,
+        params={"pdf_id": pdf_id},
+        timeout=30,
+    )
+    data = _handle_response(response)
+    return data.get("chat history ", [])

@@ -27,6 +27,14 @@ def render_sidebar():
         ):
             st.session_state.current_page = "summary"
             st.rerun()
+        if st.button(
+            "Ask a Question",
+            key="nav_ask",
+            use_container_width=True,
+            type="primary" if current == "ask" else "secondary",
+        ):
+            st.session_state.current_page = "ask"
+            st.rerun()
 
         st.divider()
         st.subheader("Active PDF")

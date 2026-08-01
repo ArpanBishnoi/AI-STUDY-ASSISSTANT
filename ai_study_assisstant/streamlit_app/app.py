@@ -5,6 +5,7 @@ from views.auth import render_auth_page
 from views.shell import render_sidebar
 from views.library import render_library_page
 from views.summary import render_summary_page
+from views.ask import render_ask_page
 
 st.set_page_config(
     page_title="AI Study Assistant",
@@ -26,5 +27,7 @@ else:
 
     if page == "summary":
         render_summary_page()
+    elif page == "ask":
+        render_ask_page()
     else:
         render_library_page()
