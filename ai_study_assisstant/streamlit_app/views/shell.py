@@ -3,28 +3,29 @@ import streamlit as st
 from session import logout
 
 
-def render_sidebar(current_page: str):
+def render_sidebar():
     with st.sidebar:
         st.title("AI Study Assistant")
         st.caption(f"User ID: {st.session_state.user_id}")
 
         st.divider()
         st.subheader("Navigation")
+        current = st.session_state.get("current_page", "library")
         if st.button(
             "My Library",
             key="nav_library",
             use_container_width=True,
-            type="primary" if current_page == "library" else "secondary",
+            type="primary" if current == "library" else "secondary",
         ):
-            st.query_params.page = "library"
+            st.session_state.current_page = "library"
             st.rerun()
         if st.button(
             "Summarize PDF",
             key="nav_summary",
             use_container_width=True,
-            type="primary" if current_page == "summary" else "secondary",
+            type="primary" if current == "summary" else "secondary",
         ):
-            st.query_params.page = "summary"
+            st.session_state.current_page = "summary"
             st.rerun()
 
         st.divider()

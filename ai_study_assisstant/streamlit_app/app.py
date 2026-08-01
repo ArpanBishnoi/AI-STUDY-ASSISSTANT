@@ -14,13 +14,15 @@ st.set_page_config(
 
 init_session()
 
+if "current_page" not in st.session_state:
+    st.session_state.current_page = "library"
+
 if not st.session_state.authenticated:
     render_auth_page()
 else:
-    query_params = st.query_params
-    page = query_params.get("page", "library")
+    render_sidebar()
 
-    render_sidebar(page)
+    page = st.session_state.current_page
 
     if page == "summary":
         render_summary_page()
