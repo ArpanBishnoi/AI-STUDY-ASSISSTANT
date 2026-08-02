@@ -137,3 +137,29 @@ def get_chat_history(pdf_id: int, headers: dict) -> list:
     )
     data = _handle_response(response)
     return data.get("chat history ", [])
+
+
+def generate_flashcards(
+    pdf_id: int, num_flashcards: int, difficulty: str, headers: dict
+) -> dict:
+    response = requests.post(
+        f"{API_BASE_URL}/Generate_flashcard",
+        headers=headers,
+        json={
+            "pdf_id": pdf_id,
+            "num_flashcards": num_flashcards,
+            "difficulty": difficulty,
+        },
+        timeout=120,
+    )
+    return _handle_response(response)
+
+
+def get_quiz(pdf_id: int, headers: dict) -> dict:
+    response = requests.get(
+        f"{API_BASE_URL}/QUIZ_QUESTIONS",
+        headers=headers,
+        params={"pdf_id": pdf_id},
+        timeout=120,
+    )
+    return _handle_response(response)

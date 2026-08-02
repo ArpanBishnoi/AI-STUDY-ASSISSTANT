@@ -35,6 +35,30 @@ def render_sidebar():
         ):
             st.session_state.current_page = "ask"
             st.rerun()
+        if st.button(
+            "Upload PDF",
+            key="nav_upload",
+            use_container_width=True,
+            type="primary" if current == "upload" else "secondary",
+        ):
+            st.session_state.current_page = "upload"
+            st.rerun()
+        if st.button(
+            "Flashcards & Quiz",
+            key="nav_flashcards",
+            use_container_width=True,
+            type="primary" if current == "flashcards" else "secondary",
+        ):
+            st.session_state.current_page = "flashcards"
+            st.rerun()
+        if st.button(
+            "Summary History",
+            key="nav_summary_history",
+            use_container_width=True,
+            type="primary" if current == "summary_history" else "secondary",
+        ):
+            st.session_state.current_page = "summary_history"
+            st.rerun()
 
         st.divider()
         st.subheader("Active PDF")
