@@ -9,6 +9,10 @@ from views.ask import render_ask_page
 from views.upload import render_upload_page
 from views.flashcards import render_flashcards_page
 from views.summary_history import render_summary_history_page
+from views.explain import render_explain_page
+from views.notes import render_notes_page
+from views.question_bank import render_question_bank_page
+from views.revision import render_revision_page
 
 st.set_page_config(
     page_title="AI Study Assistant",
@@ -38,5 +42,13 @@ else:
         render_flashcards_page()
     elif page == "summary_history":
         render_summary_history_page()
+    elif page == "explain":
+        render_explain_page()
+    elif page == "notes":
+        render_notes_page()
+    elif page == "question_bank":
+        render_question_bank_page()
+    elif page == "revision":
+        render_revision_page()
     else:
         render_library_page()

@@ -59,6 +59,38 @@ def render_sidebar():
         ):
             st.session_state.current_page = "summary_history"
             st.rerun()
+        if st.button(
+            "Explain AI",
+            key="nav_explain",
+            use_container_width=True,
+            type="primary" if current == "explain" else "secondary",
+        ):
+            st.session_state.current_page = "explain"
+            st.rerun()
+        if st.button(
+            "Study Notes",
+            key="nav_notes",
+            use_container_width=True,
+            type="primary" if current == "notes" else "secondary",
+        ):
+            st.session_state.current_page = "notes"
+            st.rerun()
+        if st.button(
+            "Question Bank",
+            key="nav_question_bank",
+            use_container_width=True,
+            type="primary" if current == "question_bank" else "secondary",
+        ):
+            st.session_state.current_page = "question_bank"
+            st.rerun()
+        if st.button(
+            "Revise AI",
+            key="nav_revision",
+            use_container_width=True,
+            type="primary" if current == "revision" else "secondary",
+        ):
+            st.session_state.current_page = "revision"
+            st.rerun()
 
         st.divider()
         st.subheader("Active PDF")

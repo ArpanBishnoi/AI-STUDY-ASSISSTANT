@@ -163,3 +163,43 @@ def get_quiz(pdf_id: int, headers: dict) -> dict:
         timeout=120,
     )
     return _handle_response(response)
+
+
+def explain_concept(pdf_id: int, question: str, headers: dict) -> dict:
+    response = requests.post(
+        f"{API_BASE_URL}/EXPLAIN AI",
+        headers=headers,
+        json={"pdf_id": pdf_id, "question": question},
+        timeout=120,
+    )
+    return _handle_response(response)
+
+
+def get_notes(pdf_id: int, headers: dict) -> dict:
+    response = requests.get(
+        f"{API_BASE_URL}/GET NOTES",
+        headers=headers,
+        params={"pdf_id": pdf_id},
+        timeout=120,
+    )
+    return _handle_response(response)
+
+
+def get_question_bank(pdf_id: int, headers: dict) -> dict:
+    response = requests.get(
+        f"{API_BASE_URL}/PROBABLE QUESTION BANK",
+        headers=headers,
+        params={"pdf_id": pdf_id},
+        timeout=120,
+    )
+    return _handle_response(response)
+
+
+def get_revision(pdf_id: int, headers: dict) -> dict:
+    response = requests.get(
+        f"{API_BASE_URL}/REVISE AI",
+        headers=headers,
+        params={"pdf_id": pdf_id},
+        timeout=120,
+    )
+    return _handle_response(response)
