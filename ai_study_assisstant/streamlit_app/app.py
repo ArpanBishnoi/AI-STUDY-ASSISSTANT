@@ -13,6 +13,7 @@ from views.explain import render_explain_page
 from views.notes import render_notes_page
 from views.question_bank import render_question_bank_page
 from views.revision import render_revision_page
+from views.chat_history import render_chat_history_page
 
 st.set_page_config(
     page_title="AI Study Assistant",
@@ -50,5 +51,7 @@ else:
         render_question_bank_page()
     elif page == "revision":
         render_revision_page()
+    elif page == "chat_history":
+        render_chat_history_page()
     else:
         render_library_page()

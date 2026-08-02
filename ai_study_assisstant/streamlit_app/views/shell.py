@@ -91,6 +91,14 @@ def render_sidebar():
         ):
             st.session_state.current_page = "revision"
             st.rerun()
+        if st.button(
+            "Chat History",
+            key="nav_chat_history",
+            use_container_width=True,
+            type="primary" if current == "chat_history" else "secondary",
+        ):
+            st.session_state.current_page = "chat_history"
+            st.rerun()
 
         st.divider()
         st.subheader("Active PDF")
@@ -103,3 +111,10 @@ def render_sidebar():
         if st.button("Logout", use_container_width=True):
             logout()
             st.rerun()
+
+        st.divider()
+        st.markdown(
+            "<div style='text-align:center; opacity:0.5; font-size:0.75rem; "
+            "padding-top:0.5rem;'>PRODUCED BY #AV</div>",
+            unsafe_allow_html=True,
+        )

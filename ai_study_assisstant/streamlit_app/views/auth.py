@@ -16,6 +16,13 @@ def render_auth_page():
     with tab_register:
         _render_register_form()
 
+    st.divider()
+    st.markdown(
+        "<div style='text-align:center; opacity:0.5; font-size:0.75rem;'>"
+        "PRODUCED BY #AV</div>",
+        unsafe_allow_html=True,
+    )
+
 
 def _render_login_form():
     with st.form("login_form", clear_on_submit=False):
