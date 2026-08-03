@@ -127,10 +127,12 @@ def upload_pdf(
              pdf_text = extract_text_from_pdf(file_path)
              conn =get_connection()
              cur=conn.cursor()
-             cur.execute('INSERT INTO pdfs(user_id,title,file_path,content) VALUES (%s,%s,%s,%s)',(current_user,file.filename,file_path,pdf_text))
+             cur.execute('INSERT INTO pdfs(user_id,title,file_path,content) VALUES (%s,%s,%s,%s) RETURNING id',(current_user,file.filename,file_path,pdf_text))
+             pdf_id = cur.fetchone()[0]
              conn.commit()
              cur.close()
              conn.close()
+             get_chunks_for_pdf(pdf_id,current_user)
              return{'message':'PDF uploaded successfully !!!'}
       except Exception as e:
             return {'error':str(e)}
@@ -264,7 +266,8 @@ class QUESTIONINPUT(BaseModel):
     question :str
 @app.post('/ASK')     
 def ask_question(item: QUESTIONINPUT,current_user =Depends(get_current_user)):
-     answer = ask_pdf(item.question,item.pdf_id,current_user)
+     content = get_pdf_content(item.pdf_id,current_user)
+     answer = ask_pdf(item.question,item.pdf_id,current_user,full_content=content)
      save_pdf(current_user,item.pdf_id,item.question,answer)
      return {'THE ANSWER OF YOUR QUESTION': answer}
 def save_pdf(user_id,pdf_id,question,answer): 

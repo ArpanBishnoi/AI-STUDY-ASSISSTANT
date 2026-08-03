@@ -6,9 +6,14 @@ def search_chunks(question: str, pdf_id: int, top_k: int = 5):
     question_embedding = generate_embedding(question)
     results = chunks_collection.query(query_embeddings=[question_embedding], n_results=top_k, where={'pdf_id': pdf_id})
     return results['documents'][0]
-def ask_pdf(question:str,pdf_id:int,user_id):
+def ask_pdf(question:str,pdf_id:int,user_id,full_content:str=None):
     chunks = search_chunks(question,pdf_id)
-    context= '\n\n'.join(chunks)
+    if chunks:
+        context = '\n\n'.join(chunks)
+    elif full_content:
+        context = full_content
+    else:
+        context = ''
     prompt  = QA_PROMPT.format(context =context,question= question)
     answer = generate_response(prompt)
     return answer
