@@ -202,33 +202,60 @@ def _grade_quiz(questions: list, answers: dict):
             st.markdown(f"❌ **Q{i + 1}:** Correct answer: **{correct}** (you: {user_ans})")
 
 
+_OPTION_RE = re.compile(
+    r"^\s*[\(\[]?([A-Da-d])[\)\]]\s*(.*?)\s*$", re.MULTILINE
+)
+_CORRECT_RE = re.compile(
+    r"Correct Answer\s*:\s*([A-Da-d])", re.IGNORECASE
+)
+
+
+def _extract_question_text(text: str) -> str:
+    cleaned = []
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        line = re.sub(r"^#{1,6}\s*", "", line)
+        line = re.sub(
+            r"^(?:\*\*)?(?:Question\s*)?\d+[\.\)]\s*(?:\*\*)?\s*",
+            "",
+            line,
+            flags=re.IGNORECASE,
+        )
+        line = line.strip("*").strip()
+        if line:
+            cleaned.append(line)
+    return " ".join(cleaned).strip()
+
+
 def _parse_quiz(raw: str) -> list:
     questions = []
-    blocks = re.split(r"(?=\*\*\d+[\.\)]|^\d+[\.\)]\s)", raw, flags=re.MULTILINE)
+    if not raw or not raw.strip():
+        return questions
+
+    # Each question block ends at a "Correct Answer:" line. Splitting with a
+    # capturing group keeps the delimiter, so we re-pair each preamble with
+    # its own correct-answer line.
+    parts = re.split(
+        r"(Correct Answer\s*:\s*[A-Da-d])", raw, flags=re.IGNORECASE
+    )
+    blocks = [parts[i] + parts[i + 1] for i in range(0, len(parts) - 1, 2)]
+
     for block in blocks:
-        block = block.strip()
-        if not block:
+        correct_match = _CORRECT_RE.search(block)
+        if not correct_match:
             continue
-        q_match = re.match(
-            r"(?:\*\*)?\d+[\.\)]\s*(.*?)(?=\n[\(\[]?[A-Da-d][\)\]])",
-            block,
-            re.DOTALL,
-        )
-        if not q_match:
+        correct = correct_match.group(1).upper()
+
+        opts = _OPTION_RE.findall(block)
+        options = [f"{letter.upper()}) {text.strip()}" for letter, text in opts]
+        if len(options) != 4:
             continue
-        question_text = q_match.group(1).strip()
 
-        opts = re.findall(
-            r"[\(\[]?([A-Da-d])[\)\]]\s*(.*?)(?=\n[\(\[]?[A-Da-d][\)\]]|Correct Answer:|\Z)",
-            block,
-            re.DOTALL,
-        )
-        options = [f"{letter}) {text.strip()}" for letter, text in opts]
-
-        correct_match = re.search(r"Correct Answer:\s*([A-Da-d])", block)
-        correct = correct_match.group(1).upper() if correct_match else ""
-
-        if question_text and len(options) == 4 and correct:
+        first_opt = _OPTION_RE.search(block)
+        question_text = _extract_question_text(block[: first_opt.start()])
+        if question_text:
             questions.append((question_text, options, correct))
     return questions
 
