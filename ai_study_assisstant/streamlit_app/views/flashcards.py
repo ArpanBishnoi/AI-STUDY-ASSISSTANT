@@ -133,8 +133,24 @@ def _render_quiz_tab(headers: dict):
             try:
                 result = api_client.get_quiz(st.session_state.pdf_id, headers)
                 raw = result.get("Here are your questions", "")
-                questions = _parse_quiz(raw)
-                st.session_state.quiz_questions = questions
+                if not raw or not raw.strip():
+                    st.session_state.quiz_questions = []
+                    st.session_state.quiz_raw = ""
+                    st.warning(
+                        "The backend returned an empty quiz. "
+                        "Try uploading the PDF again or use a different PDF."
+                    )
+                else:
+                    questions = _parse_quiz(raw)
+                    st.session_state.quiz_questions = questions
+                    st.session_state.quiz_raw = raw
+                    if not questions:
+                        st.warning(
+                            "The quiz was generated but could not be parsed. "
+                            "Showing the raw text below — try Generate Quiz again."
+                        )
+                        with st.expander("Raw quiz output"):
+                            st.text(raw[:2000])
                 st.session_state.quiz_answers = {}
             except api_client.APIError as exc:
                 _handle_api_error(exc)
@@ -203,26 +219,32 @@ def _grade_quiz(questions: list, answers: dict):
 
 
 _OPTION_RE = re.compile(
-    r"^\s*[\(\[]?([A-Da-d])[\)\]]\s*(.*?)\s*$", re.MULTILINE
+    r"^\s*[-\*]?\s*\*{0,2}\s*[\(\[]?([A-Da-d])[\)\]\.]*\s*\.?\s*\*{0,2}\s*(.*?)\s*\*{0,2}\s*$",
+    re.MULTILINE,
 )
 _CORRECT_RE = re.compile(
-    r"Correct Answer\s*:\s*([A-Da-d])", re.IGNORECASE
+    r"Correct\s*Answer\s*:?\s*\*{0,2}\s*([A-Da-d])",
+    re.IGNORECASE,
 )
 
 
 def _extract_question_text(text: str) -> str:
+    # A block may contain the previous question's explanation followed by
+    # the current question's heading. Keep only text after the LAST heading.
+    qnum_matches = list(
+        re.finditer(
+            r"^\s*#{0,6}\s*\*{0,2}(?:Question\s*)?\d+[\.\)]?\s*\*{0,2}\s*",
+            text,
+            flags=re.IGNORECASE | re.MULTILINE,
+        )
+    )
+    if qnum_matches:
+        text = text[qnum_matches[-1].end():]
     cleaned = []
     for line in text.splitlines():
         line = line.strip()
         if not line:
             continue
-        line = re.sub(r"^#{1,6}\s*", "", line)
-        line = re.sub(
-            r"^(?:\*\*)?(?:Question\s*)?\d+[\.\)]\s*(?:\*\*)?\s*",
-            "",
-            line,
-            flags=re.IGNORECASE,
-        )
         line = line.strip("*").strip()
         if line:
             cleaned.append(line)
@@ -234,13 +256,24 @@ def _parse_quiz(raw: str) -> list:
     if not raw or not raw.strip():
         return questions
 
-    # Each question block ends at a "Correct Answer:" line. Splitting with a
-    # capturing group keeps the delimiter, so we re-pair each preamble with
-    # its own correct-answer line.
+    # Split on "Correct Answer" delimiters. Each question block is the text
+    # between two delimiters, paired with its own correct-answer line.
     parts = re.split(
-        r"(Correct Answer\s*:\s*[A-Da-d])", raw, flags=re.IGNORECASE
+        r"(Correct\s*Answer\s*:?\s*\*{0,2}\s*[A-Da-d])",
+        raw,
+        flags=re.IGNORECASE,
     )
-    blocks = [parts[i] + parts[i + 1] for i in range(0, len(parts) - 1, 2)]
+    if len(parts) < 3:
+        # No "Correct Answer" markers found — fall back to splitting on
+        # numbered question headings instead.
+        q_splits = re.split(
+            r"(?=^(?:#{1,6}\s*)?\*{0,2}(?:Question\s*)?\d+[\.\)]\s)",
+            raw,
+            flags=re.MULTILINE,
+        )
+        blocks = [b for b in q_splits if b.strip()]
+    else:
+        blocks = [parts[i] + parts[i + 1] for i in range(0, len(parts) - 1, 2)]
 
     for block in blocks:
         correct_match = _CORRECT_RE.search(block)
@@ -249,9 +282,18 @@ def _parse_quiz(raw: str) -> list:
         correct = correct_match.group(1).upper()
 
         opts = _OPTION_RE.findall(block)
-        options = [f"{letter.upper()}) {text.strip()}" for letter, text in opts]
-        if len(options) != 4:
+        # Deduplicate options that appear in both the question block and an
+        # overlapping explanation — keep only the first 4 distinct letters.
+        seen = set()
+        unique_opts = []
+        for letter, text in opts:
+            letter = letter.upper()
+            if letter not in seen:
+                seen.add(letter)
+                unique_opts.append((letter, text))
+        if len(unique_opts) != 4:
             continue
+        options = [f"{letter}) {text.strip()}" for letter, text in unique_opts]
 
         first_opt = _OPTION_RE.search(block)
         question_text = _extract_question_text(block[: first_opt.start()])
