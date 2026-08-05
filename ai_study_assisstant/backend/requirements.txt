@@ -8,5 +8,8 @@ python-dotenv
 openai
 chromadb
 pymupdf
+pydantic
+requests
+python-multipart
 
 
