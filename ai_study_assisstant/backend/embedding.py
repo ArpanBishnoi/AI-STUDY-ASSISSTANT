@@ -9,8 +9,10 @@ client = OpenAI(
 )
 def generate_embedding(text: str) -> list:
     response = client.embeddings.create(
-        model="nvidia/llama-nemotron-embed-vl-1b-v2:free",
+        model="nvidia/nemotron-3-embed--1b:free",
         input=text,
+        input_type="query",
+        encoding_format="float",
     )
     return response.data[0].embedding
 
