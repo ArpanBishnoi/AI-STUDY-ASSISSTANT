@@ -9,4 +9,5 @@ openai
 chromadb
 pymupdf
 requests
+python-multipart
 
