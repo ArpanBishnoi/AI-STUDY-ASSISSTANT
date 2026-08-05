@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+psycopg[binary]
+python-dotenv
+pydantic
+bcrypt
+python-jose
+PyMuPDF
+chromadb
+openai
+sentence-transformers
