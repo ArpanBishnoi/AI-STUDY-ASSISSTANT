@@ -146,11 +146,11 @@ This Retrieval-Augmented Generation (RAG) pipeline significantly improves answer
 
 Frontend:
 
-«(Add your Streamlit URL here)»
+https://d3rp7pr5gcpuuwuutojqib.streamlit.app/
 
 Backend API:
 
-«(Add your Render URL here)»
+https://ai-study-assisstant-84vk.onrender.com
 
 ---
 
